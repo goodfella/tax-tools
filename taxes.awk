@@ -7,7 +7,7 @@ BEGIN {
     taxes_paid = 0;
 }
 
-# comment for tax information just ignore the line
+# comment for tax information file just ignore the line
 /\#/{}
 
 
@@ -77,7 +77,18 @@ END {
 
     # calculate the income tax
     inc_tax = 0;
-    tax_inc = tot_inc - tot_ded - tot_exm;
+
+    # taxable income = income - deductions
+    tax_inc = tot_inc - tot_ded
+
+    if( tot_exm > tax_inc )
+    {
+	tax_inc = 0;
+    }
+    else
+    {
+	tax_inc -= tot_exm;
+    }
 
     printf("Taxable income: %d\n", tax_inc);
 
@@ -115,6 +126,16 @@ END {
 		break;
 	    }
 	}
+    }
+
+    # credits are subtracted from income taxes
+    if( tot_cre > inc_tax )
+    {
+	inc_tax = 0;
+    }
+    else
+    {
+	inc_tax -= tot_cre;
     }
 
     printf("Income tax: %d\n", inc_tax);
