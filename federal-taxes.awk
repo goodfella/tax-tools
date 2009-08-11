@@ -1,20 +1,22 @@
 BEGIN {
     tab_idx = 0;
-    tol_inc = 0;
-    tot_ded = 0;
-    tot_exm = 0;
-    tot_cre = 0;
+    income = 0;
+    inc_adj = 0;
+    fed_inc_adj = 0;
+    ded = 0;
+    exm = 0;
+    credits = 0;
     taxes_paid = 0;
 }
 
 # comment for tax information file just ignore the line
-/\#/{}
+/^\#/{}
 
 
 # store tax table information
-/begin-tax-table:/,/end-tax-table:/{
+/^fed-tax-table:$/,/^\~fed-tax-table:$/{
 
-    if( ! match($1, /begin-tax-table:|end-tax-table:/) )
+    if( ! match($1, /^fed-tax-table:$|^\~fed-tax-table:$/) )
     {
 	tax_tbl[tab_idx] = $0;
 	++tab_idx;
@@ -23,19 +25,39 @@ BEGIN {
 
 
 # sum up the income
-/begin-income:/,/end-income:/{
+/^income:$/,/^\~income:$/{
 
-    if( ! match($1, /begin-income:|end-income:/) )
+    if( ! match($1, /^income:$|^\~income:$/) )
     {
-	tot_inc += $1;
+	income += $1;
+    }
+}
+
+
+# sum up the income adjustments
+/^income-adj:$/,/^\~income-adj:$/{
+
+    if( ! match($1, /^income-adj:$|^\~income-adj:$/) )
+    {
+	inc_adj += $1;
+    }
+}
+
+
+# sum up the income adjustments
+/^fed-income-adj:$/,/^\~fed-income-adj:$/{
+
+    if( ! match($1, /^fed-income-adj:$|^\~fed-income-adj:$/) )
+    {
+	fed_inc_adj += $1;
     }
 }
 
 
 # sum up taxes paid
-/begin-taxes-paid:/,/end-taxes-paid:/{
+/^fed-taxes-paid:$/,/^\~fed-taxes-paid:$/{
 
-    if( ! match($1, /begin-taxes-paid:|end-taxes-paid:/) )
+    if( ! match($1, /^fed-taxes-paid:$|^\~fed-taxes-paid:$/) )
     {
 	taxes_paid += $1;
     }
@@ -43,25 +65,25 @@ BEGIN {
 
 
 # sum up the deductions
-/begin-deductions:/,/end-deductions:/{
+/^fed-deductions:$/,/^\~fed-deductions:$/{
 
-    if( ! match($1, /begin-deductions:|end-deductions:/) )
+    if( ! match($1, /^fed-deductions:$|^\~fed-deductions:$/) )
     {
-	tot_ded += $1;
+	ded += $1;
     }
 }
 
 
 # get exemptions
-/exemptions:/ { tot_exm = $2 }
+/fed-exemptions:/ { exm = $2 }
 
 
 # sum up the credits
-/begin-credits:/,/end-credits:/{
+/^fed-credits:$/,/^\~-fed-credits:$/{
 
-    if( ! match($1, /begin-credits:|end-credits:/) )
+    if( ! match($1, /^fed-credits:$|^\~fed-credits:$/) )
     {
-	tot_cre += $1;
+	credits += $1;
     }
 }
 
@@ -69,25 +91,29 @@ BEGIN {
 # print the information and calculate taxes
 END {
 
-    printf("Total income: %d\n", tot_inc);
-    printf("Total deductions: %d\n", tot_ded);
-    printf("Total exemptions: %d\n", tot_exm);
-    printf("Total credits: %d\n", tot_cre);
+    printf("Total income: %d\n", income);
+    printf("Adjustments: %d\n", inc_adj + fed_inc_adj);
+    printf("Deductions: %d\n", ded);
+    printf("Exemptions: %d\n", exm);
+    printf("Credits: %d\n", credits);
     printf("Taxes paid: %d\n", taxes_paid);
 
     # calculate the income tax
     inc_tax = 0;
 
     # taxable income = income - deductions
-    tax_inc = tot_inc - tot_ded
+    tax_inc = income - ded - inc_adj - fed_inc_adj;
 
-    if( tot_exm > tax_inc )
+    if( tax_inc < 0 )
+	tax_inc = 0;
+
+    if( exm > tax_inc )
     {
 	tax_inc = 0;
     }
     else
     {
-	tax_inc -= tot_exm;
+	tax_inc -= exm;
     }
 
     printf("Taxable income: %d\n", tax_inc);
@@ -129,17 +155,26 @@ END {
     }
 
     # credits are subtracted from income taxes
-    if( tot_cre > inc_tax )
+    if( credits > inc_tax )
     {
 	inc_tax = 0;
     }
     else
     {
-	inc_tax -= tot_cre;
+	inc_tax -= credits;
     }
 
-    printf("Income tax: %d\n", inc_tax);
+    printf("Total tax: %d\n", inc_tax);
+    printf("Effective tax rate: %f\n", inc_tax / income * 100);
 
-    printf("Refund / Payment (negative value indicates payment): %d\n",
-	   taxes_paid - inc_tax);
+    res = taxes_paid - inc_tax;
+
+    if( res < 0 )
+    {
+	printf("Payment: %d\n", -1 * res);
+    }
+    else if( res > 0 )
+    {
+	printf("Refund: %d\n", res);
+    }
 }
