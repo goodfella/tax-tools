@@ -79,7 +79,7 @@ BEGIN {
 
 
 # sum up the credits
-/^fed-credits:$/,/^\~-fed-credits:$/{
+/^fed-credits:$/,/^\~fed-credits:$/{
 
     if( ! match($1, /^fed-credits:$|^\~fed-credits:$/) )
     {
@@ -91,12 +91,13 @@ BEGIN {
 # print the information and calculate taxes
 END {
 
+    printf("Totals:\n=======\n");
     printf("Total income: %d\n", income);
     printf("Adjustments: %d\n", inc_adj + fed_inc_adj);
     printf("Deductions: %d\n", ded);
     printf("Exemptions: %d\n", exm);
     printf("Credits: %d\n", credits);
-    printf("Taxes paid: %d\n", taxes_paid);
+    printf("Taxes paid: %d\n\n", taxes_paid);
 
     # calculate the income tax
     inc_tax = 0;
@@ -116,7 +117,8 @@ END {
 	tax_inc -= exm;
     }
 
-    printf("Taxable income: %d\n", tax_inc);
+    printf("Form 1040 calculations:\n=======================\n");
+    printf("Taxable income (line 43): %d\n", tax_inc);
 
     # traverse each entry in the tax table
     for( i = 0; i < tab_idx; ++i)
@@ -154,6 +156,8 @@ END {
 	}
     }
 
+    printf("Tax (line 44): %d\n", inc_tax);
+
     # credits are subtracted from income taxes
     if( credits > inc_tax )
     {
@@ -164,7 +168,7 @@ END {
 	inc_tax -= credits;
     }
 
-    printf("Total tax: %d\n", inc_tax);
+    printf("Total tax (line 61): %d\n", inc_tax);
     printf("Effective tax rate: %f\n", inc_tax / income * 100);
 
     res = taxes_paid - inc_tax;
