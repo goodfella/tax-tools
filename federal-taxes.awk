@@ -118,6 +118,9 @@ END {
     }
 
     printf("Form 1040 calculations:\n=======================\n");
+    printf("Total income (line 22): %d\n", income - inc_adj);
+    printf("Adjusted gross income (line 37): %d\n",
+	   income - inc -inc_adj - fed_inc_adj);
     printf("Taxable income (line 43): %d\n", tax_inc);
 
     # traverse each entry in the tax table
