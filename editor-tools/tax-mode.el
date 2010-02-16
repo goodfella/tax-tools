@@ -11,7 +11,8 @@
     "fed-taxes-paid"
     "fed-deductions"
     "fed-exemptions"
-    "fed-credits"))
+    "fed-credits"
+    "fed-extra-taxes"))
 
 (defvar tax-font-lock-expr
   ;; use constant face for numbers
