@@ -1,16 +1,5 @@
-BEGIN {
-    tab_idx = 0;
-    income = 0;
-    inc_adj = 0;
-    fed_inc_adj = 0;
-    ded = 0;
-    exm = 0;
-    credits = 0;
-    taxes_paid = 0;
-}
-
 # comment for tax information file just ignore the line
-/^\#/{}
+/^\#.*/{}
 
 
 # store tax table information
@@ -20,6 +9,14 @@ BEGIN {
     {
 	tax_tbl[tab_idx] = $0;
 	++tab_idx;
+    }
+}
+
+/^fed-extra-taxes:$/,/^\~fed-extra-taxes:$/{
+
+    if( ! match($1, /^fed-extra-taxes:$|^\~fed-extra-taxes:$/) )
+    {
+	extra_taxes += $1;
     }
 }
 
@@ -75,7 +72,15 @@ BEGIN {
 
 
 # get exemptions
-/fed-exemptions:/ { exm = $2 }
+/^fed-exemptions:$/,/^\~fed-exemptions:$/{
+
+    if( ! match($1, /^fed-exemptions:$|^\~fed-exemptions:$/) )
+    {
+	exm += $1;
+    }
+}
+
+/^fed-exemption-factor:[[:space:]]*[[:digit:]]+/ {exm_factor = $2}
 
 
 # sum up the credits
@@ -96,11 +101,14 @@ END {
     printf("Adjustments: %d\n", inc_adj + fed_inc_adj);
     printf("Deductions: %d\n", ded);
     printf("Exemptions: %d\n", exm);
+    printf("Exemption amount: %d\n", exm_factor);
     printf("Credits: %d\n", credits);
-    printf("Taxes paid: %d\n\n", taxes_paid);
+    printf("Taxes paid: %d\n", taxes_paid);
+    printf("Extra taxes: %d\n\n", extra_taxes);
 
     # calculate the income tax
     inc_tax = 0;
+    exm_amount = exm * exm_factor;
 
     # taxable income = income - deductions
     tax_inc = income - ded - inc_adj - fed_inc_adj;
@@ -108,19 +116,21 @@ END {
     if( tax_inc < 0 )
 	tax_inc = 0;
 
-    if( exm > tax_inc )
+    if( exm_amount > tax_inc )
     {
 	tax_inc = 0;
     }
     else
     {
-	tax_inc -= exm;
+	tax_inc -= exm_amount;
     }
 
     printf("Form 1040 calculations:\n=======================\n");
     printf("Total income (line 22): %d\n", income - inc_adj);
     printf("Adjusted gross income (line 37): %d\n",
 	   income - inc -inc_adj - fed_inc_adj);
+    printf("Exemptions (line 42): %d\n", exm_amount);
+
     printf("Taxable income (line 43): %d\n", tax_inc);
 
     # traverse each entry in the tax table
@@ -159,22 +169,24 @@ END {
 	}
     }
 
+    total_tax = inc_tax + extra_taxes;
+
     printf("Tax (line 44): %d\n", inc_tax);
 
     # credits are subtracted from income taxes
-    if( credits > inc_tax )
+    if( credits > total_tax )
     {
-	inc_tax = 0;
+	total_tax = 0;
     }
     else
     {
-	inc_tax -= credits;
+	total_tax -= credits;
     }
 
-    printf("Total tax (line 61): %d\n", inc_tax);
-    printf("Effective tax rate: %f\n", inc_tax / income * 100);
+    printf("Total tax (line 61): %d\n", total_tax);
+    printf("Effective tax rate: %f percent\n", total_tax / income * 100);
 
-    res = taxes_paid - inc_tax;
+    res = taxes_paid - total_tax;
 
     if( res < 0 )
     {
