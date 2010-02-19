@@ -126,12 +126,12 @@ END {
     }
 
     printf("Form 1040 calculations:\n=======================\n");
-    printf("Total income (line 22): %d\n", income - inc_adj);
-    printf("Adjusted gross income (line 37): %d\n",
+    printf("Total income: %d\n", income - inc_adj);
+    printf("Adjusted gross income: %d\n",
 	   income - inc -inc_adj - fed_inc_adj);
-    printf("Exemptions (line 42): %d\n", exm_amount);
+    printf("Exemptions: %d\n", exm_amount);
 
-    printf("Taxable income (line 43): %d\n", tax_inc);
+    printf("Taxable income: %d\n", tax_inc);
 
     # traverse each entry in the tax table
     for( i = 0; i < tab_idx; ++i)
@@ -171,7 +171,7 @@ END {
 
     total_tax = inc_tax + extra_taxes;
 
-    printf("Tax (line 44): %d\n", inc_tax);
+    printf("Tax: %d\n", inc_tax);
 
     # credits are subtracted from income taxes
     if( credits > total_tax )
@@ -183,7 +183,7 @@ END {
 	total_tax -= credits;
     }
 
-    printf("Total tax (line 61): %d\n", total_tax);
+    printf("Total tax: %d\n", total_tax);
     printf("Effective tax rate: %f percent\n", total_tax / income * 100);
 
     res = taxes_paid - total_tax;
