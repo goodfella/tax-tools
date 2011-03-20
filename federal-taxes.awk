@@ -1,3 +1,5 @@
+BEGIN {tax_tbl_size = 0;}
+
 # comment for tax information file just ignore the line
 /^\#.*/{}
 
@@ -7,8 +9,11 @@
 
     if( ! match($1, /^fed-tax-table:$|^\~fed-tax-table:$/) )
     {
-	tax_tbl[tab_idx] = $0;
-	++tab_idx;
+	if( length($0) > 0 )
+	{
+	    tax_tbl[tax_tbl_size] = $0;
+	    ++tax_tbl_size;
+	}
     }
 }
 
@@ -97,14 +102,15 @@
 END {
 
     printf("Totals:\n=======\n");
-    printf("Total income: %d\n", income);
-    printf("Adjustments: %d\n", inc_adj + fed_inc_adj);
-    printf("Deductions: %d\n", ded);
+    printf("Total income: $%d\n", income);
+    printf("Adjustments: $%d\n", inc_adj);
+    printf("Federal adjustments: $%d\n", fed_inc_adj);
+    printf("Deductions: $%d\n", ded);
     printf("Exemptions: %d\n", exm);
-    printf("Exemption amount: %d\n", exm_factor);
-    printf("Credits: %d\n", credits);
-    printf("Taxes paid: %d\n", taxes_paid);
-    printf("Extra taxes: %d\n\n", extra_taxes);
+    printf("Exemption amount: $%d\n", exm_factor);
+    printf("Credits: $%d\n", credits);
+    printf("Taxes paid: $%d\n", taxes_paid);
+    printf("Extra taxes: $%d\n\n", extra_taxes);
 
     # calculate the income tax
     inc_tax = 0;
@@ -126,52 +132,61 @@ END {
     }
 
     printf("Form 1040 calculations:\n=======================\n");
-    printf("Total income: %d\n", income - inc_adj);
-    printf("Adjusted gross income: %d\n",
-	   income - inc -inc_adj - fed_inc_adj);
-    printf("Exemptions: %d\n", exm_amount);
+    printf("Wages salaries, tips: $%d\n", income - inc_adj);
+    printf("Adjusted gross income: $%d\n", income - inc_adj - fed_inc_adj);
+    printf("Taxable income: $%d\n", tax_inc);
 
-    printf("Taxable income: %d\n", tax_inc);
+    temp_tax_inc = tax_inc;
 
     # traverse each entry in the tax table
-    for( i = 0; i < tab_idx; ++i)
+    for( i = 0; i < tax_tbl_size; ++i)
     {
 	# split out the tax bracket information.  All brackets but the
 	# last have a low and high salary amount.
-	brac_type = split(tax_tbl[i], tax_brac);
+	bracket = tax_tbl[i];
+	bracket_idx = i;
+	brac_type = split(bracket, tax_brac);
 
 	low = strtonum(tax_brac[1]);
+
+	# bracket percent is always the last element
+	tax_per = strtonum(tax_brac[brac_type]);
 
 	# the bracket has a low and high amount
 	if( brac_type == 3 )
 	{
 	    high = strtonum(tax_brac[2]);
-	    per = strtonum(tax_brac[3]);
 
-	    if( tax_inc < high )
+	    if( temp_tax_inc < high )
 	    {
-		inc_tax += (tax_inc - low) * per;
-		break;
-	    }
+		bracket_income = (temp_tax_inc - low);
 
-	    inc_tax += (high - low) * per;
+		# loop no more
+		i = tax_tbl_size;
+	    }
+	    else
+	    {
+		bracket_income = (high - low);
+	    }
 	}
 	# the bracket has only a low amount
 	else if ( brac_type == 2 )
 	{
-	    per = tax_brac[2];
-
-	    if( tax_inc > low )
-	    {
-		inc_tax += (tax_inc - low) * per;
-		break;
-	    }
+	    bracket_income = (temp_tax_inc - low);
 	}
+
+	bracket_tax = bracket_income * tax_per;
+	inc_tax += bracket_tax;
+	bracket_taxes[bracket_idx] = sprintf("bracket income: $%d, tax rate: %d %%, taxes: $%f",
+					     bracket_income, tax_per * 100, bracket_tax);
+	temp_tax_inc - bracket_income;
     }
 
+    # round up
+    inc_tax += .5;
     total_tax = inc_tax + extra_taxes;
 
-    printf("Tax: %d\n", inc_tax);
+    printf("Tax: $%d\n", inc_tax);
 
     # credits are subtracted from income taxes
     if( credits > total_tax )
@@ -183,17 +198,24 @@ END {
 	total_tax -= credits;
     }
 
-    printf("Total tax: %d\n", total_tax);
-    printf("Effective tax rate: %f percent\n", total_tax / income * 100);
+    printf("Total tax: $%d\n", total_tax);
 
     res = taxes_paid - total_tax;
 
     if( res < 0 )
     {
-	printf("Payment: %d\n", -1 * res);
+	printf("Payment: $%d\n", -1 * res);
     }
     else if( res > 0 )
     {
-	printf("Refund: %d\n", res);
+	printf("Refund: $%d\n", res);
     }
+
+    print ""
+    printf("Bracket breakdown:\n==================\n");
+    for(bracket in bracket_taxes)
+    {
+	print bracket_taxes[bracket];
+    }
+
 }
