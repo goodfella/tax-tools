@@ -163,22 +163,26 @@ END {
 
 		# loop no more
 		i = tax_tbl_size;
+
+		remaining = high - bracket_income;
 	    }
 	    else
 	    {
 		bracket_income = (high - low);
+		remaining = 0;
 	    }
 	}
 	# the bracket has only a low amount
 	else if ( brac_type == 2 )
 	{
 	    bracket_income = (temp_tax_inc - low);
+	    remaining = 0;
 	}
 
 	bracket_tax = bracket_income * tax_per;
 	inc_tax += bracket_tax;
-	bracket_taxes[bracket_idx] = sprintf("bracket income: $%d, tax rate: %d %%, taxes: $%f",
-					     bracket_income, tax_per * 100, bracket_tax);
+	bracket_taxes[bracket_idx] = sprintf("bracket income: $%d, tax rate: %d %%, low: %d, high: %d, remaining: %d, taxes: $%.2f",
+					     bracket_income, tax_per * 100, low, high, remaining, bracket_tax);
 	temp_tax_inc - bracket_income;
     }
 
