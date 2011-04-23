@@ -215,6 +215,9 @@ END {
 	printf("Refund: $%d\n", res);
     }
 
+    effective_tax_rate = inc_tax / tax_inc * 100;
+    tax_rate = inc_tax / income * 100;
+
     print ""
     printf("Bracket breakdown:\n==================\n");
     for(bracket in bracket_taxes)
@@ -222,4 +225,8 @@ END {
 	print bracket_taxes[bracket];
     }
 
+    print ""
+    printf("Tax rates:\n==========\n")
+    printf("Effective income tax rate: %.2f %%\n", effective_tax_rate);
+    printf("Total income tax rate: %.2f %%\n", tax_rate);
 }
