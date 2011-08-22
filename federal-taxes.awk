@@ -202,7 +202,7 @@ END {
 	total_tax -= credits;
     }
 
-    printf("Total tax: $%d\n", total_tax);
+    printf("Total tax (net credits): $%d\n", total_tax);
 
     res = taxes_paid - total_tax;
 
@@ -215,7 +215,7 @@ END {
 	printf("Refund: $%d\n", res);
     }
 
-    effective_tax_rate = inc_tax / tax_inc * 100;
+    effective_tax_rate = total_tax / tax_inc * 100;
     tax_rate = inc_tax / income * 100;
 
     print ""
@@ -227,6 +227,6 @@ END {
 
     print ""
     printf("Tax rates:\n==========\n")
-    printf("Effective income tax rate: %.2f %%\n", effective_tax_rate);
+    printf("Effective income tax rate: %.2f %% (%d / %d)\n", effective_tax_rate, total_tax, tax_inc);
     printf("Total income tax rate: %.2f %%\n", tax_rate);
 }
