@@ -216,7 +216,7 @@ END {
     }
 
     effective_tax_rate = total_tax / tax_inc * 100;
-    tax_rate = inc_tax / income * 100;
+    tax_rate = total_tax / income * 100;
 
     print ""
     printf("Bracket breakdown:\n==================\n");
@@ -228,5 +228,5 @@ END {
     print ""
     printf("Tax rates:\n==========\n")
     printf("Effective income tax rate: %.2f %% (%d / %d)\n", effective_tax_rate, total_tax, tax_inc);
-    printf("Total income tax rate: %.2f %%\n", tax_rate);
+    printf("Total income tax rate: %.2f %% (%d / %d)\n", tax_rate, total_tax, income);
 }
