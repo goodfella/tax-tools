@@ -138,44 +138,35 @@ END {
 
     temp_tax_inc = tax_inc;
 
+    i = 0;
+    low = 0;
+
     # traverse each entry in the tax table
-    for( i = 0; i < tax_tbl_size; ++i)
+    while( temp_tax_inc > 0 )
     {
 	# split out the tax bracket information.  All brackets but the
-	# last have a low and high salary amount.
+	# last have a high salary amount and a tax percentage
 	bracket = tax_tbl[i];
 	bracket_idx = i;
 	brac_type = split(bracket, tax_brac);
 
-	low = strtonum(tax_brac[1]);
-
 	# bracket percent is always the last element
 	tax_per = strtonum(tax_brac[brac_type]);
 
-	# the bracket has a low and high amount
-	if( brac_type == 3 )
+	# the bracket has a high amount and a tax percentage
+	if( brac_type == 2 )
 	{
-	    high = strtonum(tax_brac[2]);
+	    high = strtonum(tax_brac[1]);
 
-	    if( temp_tax_inc < high )
-	    {
-		bracket_income = (temp_tax_inc - low);
+	    bracket_range = high - low;
 
-		# loop no more
-		i = tax_tbl_size;
-
-		remaining = high - bracket_income;
-	    }
-	    else
-	    {
-		bracket_income = (high - low);
-		remaining = 0;
-	    }
+	    bracket_income = bracket_range < temp_tax_inc ? bracket_range : temp_tax_inc;
+	    remaining = bracket_range - bracket_income;
 	}
-	# the bracket has only a low amount
-	else if ( brac_type == 2 )
+	# the bracket has only a tax percentage
+	else if ( brac_type == 1 )
 	{
-	    bracket_income = (temp_tax_inc - low);
+	    bracket_income = temp_tax_inc;
 	    remaining = 0;
 	}
 
@@ -183,7 +174,12 @@ END {
 	inc_tax += bracket_tax;
 	bracket_taxes[bracket_idx] = sprintf("bracket income: $%d, tax rate: %d %%, low: %d, high: %d, remaining: %d, taxes: $%.2f",
 					     bracket_income, tax_per * 100, low, high, remaining, bracket_tax);
-	temp_tax_inc - bracket_income;
+
+	temp_tax_inc -= bracket_income;
+	++i;
+
+	# the current bracket high becomes the next bracket's low
+	low = high;
     }
 
     # round up
