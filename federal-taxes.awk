@@ -7,82 +7,58 @@ BEGIN {tax_tbl_size = 0;}
 # store tax table information
 /^fed-tax-table:$/,/^\~fed-tax-table:$/{
 
-    if( ! match($1, /^fed-tax-table:$|^\~fed-tax-table:$/) )
+    if( length($0) > 0 && strtonum($1) > 0 )
     {
-	if( length($0) > 0 )
-	{
-	    tax_tbl[tax_tbl_size] = $0;
-	    ++tax_tbl_size;
-	}
+	tax_tbl[tax_tbl_size] = $0;
+	++tax_tbl_size;
     }
 }
 
 /^fed-extra-taxes:$/,/^\~fed-extra-taxes:$/{
 
-    if( ! match($1, /^fed-extra-taxes:$|^\~fed-extra-taxes:$/) )
-    {
-	extra_taxes += $1;
-    }
+    extra_taxes += $1;
 }
 
 
 # sum up the income
 /^income:$/,/^\~income:$/{
 
-    if( ! match($1, /^income:$|^\~income:$/) )
-    {
-	income += $1;
-    }
+    income += $1;
 }
 
 
 # sum up the income adjustments
 /^income-adj:$/,/^\~income-adj:$/{
 
-    if( ! match($1, /^income-adj:$|^\~income-adj:$/) )
-    {
-	inc_adj += $1;
-    }
+    inc_adj += $1;
 }
 
 
 # sum up the income adjustments
 /^fed-income-adj:$/,/^\~fed-income-adj:$/{
 
-    if( ! match($1, /^fed-income-adj:$|^\~fed-income-adj:$/) )
-    {
 	fed_inc_adj += $1;
-    }
 }
 
 
 # sum up taxes paid
 /^fed-taxes-paid:$/,/^\~fed-taxes-paid:$/{
 
-    if( ! match($1, /^fed-taxes-paid:$|^\~fed-taxes-paid:$/) )
-    {
 	taxes_paid += $1;
-    }
 }
 
 
 # sum up the deductions
 /^fed-deductions:$/,/^\~fed-deductions:$/{
 
-    if( ! match($1, /^fed-deductions:$|^\~fed-deductions:$/) )
-    {
 	ded += $1;
-    }
 }
 
 
 # get exemptions
 /^fed-exemptions:$/,/^\~fed-exemptions:$/{
 
-    if( ! match($1, /^fed-exemptions:$|^\~fed-exemptions:$/) )
-    {
 	exm += $1;
-    }
 }
 
 /^fed-exemption-factor:[[:space:]]*[[:digit:]]+/ {exm_factor = $2}
@@ -91,10 +67,7 @@ BEGIN {tax_tbl_size = 0;}
 # sum up the credits
 /^fed-credits:$/,/^\~fed-credits:$/{
 
-    if( ! match($1, /^fed-credits:$|^\~fed-credits:$/) )
-    {
 	credits += $1;
-    }
 }
 
 
