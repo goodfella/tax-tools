@@ -1,3 +1,5 @@
+#!/usr/bin/gawk -f
+
 BEGIN {tax_tbl_size = 0;}
 
 # comment for tax information file just ignore the line
