@@ -196,6 +196,6 @@ END {
 
     print ""
     printf("Tax rates:\n==========\n")
-    printf("Effective income tax rate: %.2f %% (%d / %d)\n", effective_tax_rate, total_tax, tax_inc);
-    printf("Total income tax rate: %.2f %% (%d / %d)\n", tax_rate, total_tax, income);
+    printf("Taxable income effective tax rate: %.2f %% (%d / %d)\n", effective_tax_rate, total_tax, tax_inc);
+    printf("Total income effective tax rate: %.2f %% (%d / %d)\n", tax_rate, total_tax, income);
 }
