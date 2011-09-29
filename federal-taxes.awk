@@ -74,16 +74,16 @@ BEGIN {tax_tbl_size = 0;}
 # print the information and calculate taxes
 END {
 
-    printf("Totals:\n=======\n");
-    printf("Total income: $%d\n", income);
-    printf("Adjustments: $%d\n", inc_adj);
-    printf("Federal adjustments: $%d\n", fed_inc_adj);
-    printf("Deductions: $%d\n", ded);
-    printf("Exemptions: %d\n", exm);
-    printf("Exemption amount: $%d\n", exm_factor);
-    printf("Credits: $%d\n", credits);
-    printf("Taxes paid: $%d\n", taxes_paid);
-    printf("Extra taxes: $%d\n\n", extra_taxes);
+    printf("Section Totals:\n===============\n");
+    printf("Income: $%d\n", income);
+    printf("Income adjustments: $%d\n", inc_adj);
+    printf("Federal income adjustments: $%d\n", fed_inc_adj);
+    printf("Federal deductions: $%d\n", ded);
+    printf("Federal exemptions: %d\n", exm);
+    printf("Federal exemption amount: $%d\n", exm_factor);
+    printf("Federal credits: $%d\n", credits);
+    printf("Federal taxes paid: $%d\n", taxes_paid);
+    printf("Federal extra taxes: $%d\n\n", extra_taxes);
 
     # calculate the income tax
     inc_tax = 0;
