@@ -72,6 +72,11 @@ BEGIN {tax_tbl_size = 0;}
 	credits += $1;
 }
 
+/^fed-other-taxes-paid:$/,/^\~fed-other-taxes-paid:$/{
+
+    fed_other_taxes_paid += $1;
+}
+
 
 # print the information and calculate taxes
 END {
@@ -85,6 +90,7 @@ END {
     printf("Federal exemption amount: $%d\n", exm_factor);
     printf("Federal credits: $%d\n", credits);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
+    printf("Federal other taxes paid: $%d\n", fed_other_taxes_paid);
     printf("Federal extra income taxes: $%d\n\n", extra_taxes);
 
     # calculate the income tax
@@ -205,4 +211,11 @@ END {
     printf("Effective income tax rates:\n===========================\n")
     printf("income tax / taxable income: %.2f %% (%d / %d)\n", effective_tax_rate, total_tax, tax_inc);
     printf("income tax / total income: %.2f %% (%d / %d)\n", tax_rate, total_tax, income);
+
+    print ""
+    printf("Effective other tax rates:\n==========================\n")
+    printf("other tax / taxable income: %.2f %% (%d / %d)\n",
+	   fed_other_taxes_paid / tax_inc * 100, fed_other_taxes_paid, tax_inc);
+    printf("other tax / total income: %.2f %% (%d / %d)\n",
+	   fed_other_taxes_paid / income * 100, fed_other_taxes_paid, income);
 }

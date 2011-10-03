@@ -13,6 +13,7 @@
     "fed-exemptions"
     "fed-credits"
     "fed-extra-income-taxes"
+    "fed-other-taxes-paid"
     "fed-exemption-factor"))
 
 (defvar tax-font-lock-expr
