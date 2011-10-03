@@ -107,9 +107,14 @@ END {
     }
 
     printf("Form 1040 calculations:\n=======================\n");
-    printf("Wages salaries, tips: $%d\n", income - inc_adj);
-    printf("Adjusted gross income: $%d\n", income - inc_adj - fed_inc_adj);
-    printf("Taxable income: $%d\n", tax_inc);
+    printf("Wages salaries, tips (income - income adjustments): $%d\n",
+	   income - inc_adj);
+
+    printf("Adjusted gross income [AGI] (wages - federal income adjustments): $%d\n",
+	   income - inc_adj - fed_inc_adj);
+
+    printf("Taxable income (AGI - exemption amount - deductions): $%d\n",
+	   tax_inc);
 
     temp_tax_inc = tax_inc;
 
@@ -173,7 +178,7 @@ END {
 	total_tax -= credits;
     }
 
-    printf("Total tax (net credits): $%d\n", total_tax);
+    printf("Total tax (income tax - credits): $%d\n", total_tax);
 
     res = taxes_paid - total_tax;
 
