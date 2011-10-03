@@ -166,7 +166,7 @@ END {
     inc_tax += .5;
     total_tax = inc_tax + extra_taxes;
 
-    printf("Tax: $%d\n", inc_tax);
+    printf("Income tax: $%d\n", inc_tax);
 
     # credits are subtracted from income taxes
     if( credits > total_tax )
