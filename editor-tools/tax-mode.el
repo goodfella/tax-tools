@@ -8,11 +8,11 @@
     "fed-tax-table"
     "income-adj"
     "fed-income-adj"
-    "fed-taxes-paid"
+    "fed-income-taxes-paid"
     "fed-deductions"
     "fed-exemptions"
     "fed-credits"
-    "fed-extra-taxes"
+    "fed-extra-income-taxes"
     "fed-exemption-factor"))
 
 (defvar tax-font-lock-expr

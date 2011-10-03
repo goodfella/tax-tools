@@ -16,7 +16,7 @@ BEGIN {tax_tbl_size = 0;}
     }
 }
 
-/^fed-extra-taxes:$/,/^\~fed-extra-taxes:$/{
+/^fed-extra-income-taxes:$/,/^\~fed-extra-income-taxes:$/{
 
     extra_taxes += $1;
 }
@@ -44,7 +44,7 @@ BEGIN {tax_tbl_size = 0;}
 
 
 # sum up taxes paid
-/^fed-taxes-paid:$/,/^\~fed-taxes-paid:$/{
+/^fed-income-taxes-paid:$/,/^\~fed-income-taxes-paid:$/{
 
 	taxes_paid += $1;
 }
@@ -84,8 +84,8 @@ END {
     printf("Federal exemptions: %d\n", exm);
     printf("Federal exemption amount: $%d\n", exm_factor);
     printf("Federal credits: $%d\n", credits);
-    printf("Federal taxes paid: $%d\n", taxes_paid);
-    printf("Federal extra taxes: $%d\n\n", extra_taxes);
+    printf("Federal income taxes paid: $%d\n", taxes_paid);
+    printf("Federal extra income taxes: $%d\n\n", extra_taxes);
 
     # calculate the income tax
     inc_tax = 0;
