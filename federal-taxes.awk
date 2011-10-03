@@ -88,6 +88,7 @@ END {
     printf("Federal deductions: $%d\n", ded);
     printf("Federal exemptions: %d\n", exm);
     printf("Federal exemption factor: $%d\n", exm_factor);
+    printf("Federal exemption amount: $%d\n", exm_factor * exm);
     printf("Federal credits: $%d\n", credits);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
     printf("Federal other taxes paid: $%d\n", fed_other_taxes_paid);
