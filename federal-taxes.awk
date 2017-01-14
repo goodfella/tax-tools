@@ -56,6 +56,13 @@ BEGIN {tax_tbl_size = 0;}
 	ded += $1;
 }
 
+# student loan deductions
+/^fed-student-loan-deductions:$/,/^\~fed-student-loan-deductions:$/ {
+	student_loan_ded += $1;
+	if (student_loan_ded > 2500) {
+		student_loan_ded = 2500
+	}
+}
 
 # get exemptions
 /^fed-exemptions:$/,/^\~fed-exemptions:$/{
@@ -77,6 +84,9 @@ BEGIN {tax_tbl_size = 0;}
     fed_other_taxes_paid += $1;
 }
 
+/^fed-child-tax-credit-count:$/,/^\~fed-child-tax-credit-count:$/ {
+	fed_child_tax_credit_count += $1
+}
 
 # print the information and calculate taxes
 END {
@@ -86,10 +96,12 @@ END {
     printf("Income adjustments: $%d\n", inc_adj);
     printf("Federal income adjustments: $%d\n", fed_inc_adj);
     printf("Federal deductions: $%d\n", ded);
+    printf("Federal student loan deductions: $%d\n", student_loan_ded);
     printf("Federal exemptions: %d\n", exm);
     printf("Federal exemption factor: $%d\n", exm_factor);
     printf("Federal exemption amount: $%d\n", exm_factor * exm);
     printf("Federal credits: $%d\n", credits);
+    printf("Federal child tax credit count: %d\n", fed_child_tax_credit_count);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
     printf("Federal other taxes paid: $%d\n", fed_other_taxes_paid);
     printf("Federal extra income taxes: $%d\n\n", extra_taxes);
@@ -99,7 +111,10 @@ END {
     exm_amount = exm * exm_factor;
 
     # taxable income = income - deductions
-    tax_inc = income - ded - inc_adj - fed_inc_adj;
+    tax_inc = income - ded - inc_adj - fed_inc_adj - student_loan_ded;
+
+    # modified adjusted gross income
+    modified_adjusted_gross_income = income - inc_adj - fed_inc_adj
 
     if( tax_inc < 0 )
 	tax_inc = 0;
@@ -116,10 +131,8 @@ END {
     printf("Form 1040 calculations:\n=======================\n");
     printf("Wages salaries, tips (income - income adjustments): $%d\n",
 	   income - inc_adj);
-
-    printf("Adjusted gross income [AGI] (wages - federal income adjustments): $%d\n",
-	   income - inc_adj - fed_inc_adj);
-
+    printf("Adjusted gross income (AGI) $%d\n", income - inc_adj - fed_inc_adj - student_loan_ded);
+    printf("Modified AGI: $%d\n", modified_adjusted_gross_income);
     printf("Taxable income (AGI - exemption amount - deductions): $%d\n",
 	   tax_inc);
 
@@ -173,7 +186,16 @@ END {
     inc_tax += .5;
     total_tax = inc_tax + extra_taxes;
 
+    child_tax_credit = fed_child_tax_credit_count * 1000;
+    if (modified_adjusted_gross_income > 110000) {
+	    child_tax_credit -= ((modified_adjusted_gross_income - 110000) / 1000) * 50
+    }
+
+    credits += child_tax_credit;
+
     printf("Income tax: $%d\n", inc_tax);
+    printf("Credits: $%d\n", credits);
+    printf("Child tax credits: $%d\n", child_tax_credit)
 
     # credits are subtracted from income taxes
     if( credits > total_tax )
