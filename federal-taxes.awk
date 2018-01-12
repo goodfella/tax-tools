@@ -5,7 +5,6 @@ BEGIN {tax_tbl_size = 0;}
 # comment for tax information file just ignore the line
 /^\#.*/{}
 
-
 # store tax table information
 /^fed-tax-table:$/,/^\~fed-tax-table:$/{
 
@@ -81,11 +80,19 @@ BEGIN {tax_tbl_size = 0;}
 
 /^fed-other-taxes-paid:$/,/^\~fed-other-taxes-paid:$/{
 
-    fed_other_taxes_paid += $1;
+        fed_other_taxes_paid += $1;
 }
 
-/^fed-child-tax-credit-count:$/,/^\~fed-child-tax-credit-count:$/ {
-	fed_child_tax_credit_count += $1
+/^fed-child-tax-credit-count:$/,/^\~fed-child-tax-credit-count:$/{
+        fed_child_tax_credit_count += $1;
+}
+
+/^fed-child-tax-credit-phase-out:$/,/^\~fed-child-tax-credit-phase-out:$/{
+        fed_child_tax_credit_phase_out += $1;
+}
+
+/^fed-child-tax-credit-amount:$/,/^\~fed-child-tax-credit-amount:$/{
+        fed_child_tax_credit_amount += $1;
 }
 
 # print the information and calculate taxes
@@ -102,6 +109,8 @@ END {
     printf("Federal exemption amount: $%d\n", exm_factor * exm);
     printf("Federal credits: $%d\n", credits);
     printf("Federal child tax credit count: %d\n", fed_child_tax_credit_count);
+    printf("Federal child tax credit amount: %d\n", fed_child_tax_credit_amount);
+    printf("Federal child tax credit phase out: %d\n", fed_child_tax_credit_phase_out);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
     printf("Federal other taxes paid: $%d\n", fed_other_taxes_paid);
     printf("Federal extra income taxes: $%d\n\n", extra_taxes);
@@ -186,9 +195,9 @@ END {
     inc_tax += .5;
     total_tax = inc_tax + extra_taxes;
 
-    child_tax_credit = fed_child_tax_credit_count * 1000;
-    if (modified_adjusted_gross_income > 110000) {
-	    child_tax_credit -= ((modified_adjusted_gross_income - 110000) / 1000) * 50
+    child_tax_credit = fed_child_tax_credit_count * fed_child_tax_credit_amount;
+    if (modified_adjusted_gross_income > fed_child_tax_credit_phase_out) {
+	    child_tax_credit -= ((modified_adjusted_gross_income - fed_child_tax_credit_phase_out) / 1000) * 50
     }
 
     credits += child_tax_credit;
