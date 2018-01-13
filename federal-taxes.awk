@@ -87,13 +87,9 @@ BEGIN {tax_tbl_size = 0;}
         fed_child_tax_credit_count += $1;
 }
 
-/^fed-child-tax-credit-phase-out:$/,/^\~fed-child-tax-credit-phase-out:$/{
-        fed_child_tax_credit_phase_out += $1;
-}
+/^fed-child-tax-credit-phase-out:[[:space:]]*[[:digit:]]+/ {fed_child_tax_credit_phase_out = $2}
 
-/^fed-child-tax-credit-amount:$/,/^\~fed-child-tax-credit-amount:$/{
-        fed_child_tax_credit_amount += $1;
-}
+/^fed-child-tax-credit-amount:[[:space:]]*[[:digit:]]+/ {fed_child_tax_credit_amount = $2}
 
 # print the information and calculate taxes
 END {
