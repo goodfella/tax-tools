@@ -115,7 +115,6 @@ END {
     printf("Federal child tax credit phase out: %d\n", fed_child_tax_credit_phase_out);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
     printf("Federal other taxes paid: $%d\n", fed_other_taxes_paid);
-    printf("Federal extra income taxes: $%d\n\n", extra_taxes);
 
     # calculate the income tax
     inc_tax = 0;
