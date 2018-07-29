@@ -1,5 +1,17 @@
 #!/usr/bin/gawk -f
 
+function parse_number(number)
+{
+    multiplier = 1;
+    len = split(number, values, "x");
+    if( len >= 2)
+    {
+	multiplier = values[2];
+    }
+
+    return (values[1] + 0.0) * int(multiplier);
+}
+
 BEGIN {tax_tbl_size = 0;}
 
 # comment for tax information file just ignore the line
@@ -15,49 +27,43 @@ BEGIN {tax_tbl_size = 0;}
     }
 }
 
-/^fed-extra-income-taxes:$/,/^\~fed-extra-income-taxes:$/{
-
-    extra_taxes += $1;
-}
-
-
 # sum up the income
 /^income:$/,/^\~income:$/{
 
-    income += $1;
+       income += parse_number($1);
 }
 
 
 # sum up the income adjustments
 /^income-adj:$/,/^\~income-adj:$/{
 
-    inc_adj += $1;
+       inc_adj += parse_number($1);
 }
 
 
 # sum up the income adjustments
 /^fed-income-adj:$/,/^\~fed-income-adj:$/{
 
-	fed_inc_adj += $1;
+        fed_inc_adj += parse_number($1);
 }
 
 
 # sum up taxes paid
 /^fed-income-taxes-paid:$/,/^\~fed-income-taxes-paid:$/{
 
-	taxes_paid += $1;
+         taxes_paid += parse_number($1);
 }
 
 
 # sum up the deductions
 /^fed-deductions:$/,/^\~fed-deductions:$/{
 
-	ded += $1;
+         ded += parse_number($1);
 }
 
 # student loan deductions
 /^fed-student-loan-deductions:$/,/^\~fed-student-loan-deductions:$/ {
-	student_loan_ded += $1;
+        student_loan_ded += parse_number($1);
 	if (student_loan_ded > 2500) {
 		student_loan_ded = 2500
 	}
@@ -66,7 +72,7 @@ BEGIN {tax_tbl_size = 0;}
 # get exemptions
 /^fed-exemptions:$/,/^\~fed-exemptions:$/{
 
-	exm += $1;
+        exm += parse_number($1);
 }
 
 /^fed-exemption-factor:[[:space:]]*[[:digit:]]+/ {exm_factor = $2}
@@ -75,12 +81,12 @@ BEGIN {tax_tbl_size = 0;}
 # sum up the credits
 /^fed-credits:$/,/^\~fed-credits:$/{
 
-	credits += $1;
+        credits += parse_number($1);
 }
 
 /^fed-other-taxes-paid:$/,/^\~fed-other-taxes-paid:$/{
 
-        fed_other_taxes_paid += $1;
+        fed_other_taxes_paid += parse_number($1);
 }
 
 /^fed-child-tax-credit-count:$/,/^\~fed-child-tax-credit-count:$/{
