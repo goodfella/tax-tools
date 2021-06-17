@@ -15,10 +15,10 @@ function parse_number(number)
 BEGIN {tax_tbl_size = 0;}
 
 # comment for tax information file just ignore the line
-/^\#.*/{}
+/^#.*/{}
 
 # store tax table information
-/^fed-tax-table:$/,/^\~fed-tax-table:$/{
+/^fed-tax-table:$/,/^~fed-tax-table:$/{
 
     if( length($0) > 0 && strtonum($1) > 0 )
     {
@@ -28,41 +28,41 @@ BEGIN {tax_tbl_size = 0;}
 }
 
 # sum up the income
-/^income:$/,/^\~income:$/{
+/^income:$/,/^~income:$/{
 
     income += parse_number($1);
 }
 
 
 # sum up the income adjustments
-/^income-adj:$/,/^\~income-adj:$/{
+/^income-adj:$/,/^~income-adj:$/{
 
     inc_adj += parse_number($1);
 }
 
 
 # sum up the income adjustments
-/^fed-income-adj:$/,/^\~fed-income-adj:$/{
+/^fed-income-adj:$/,/^~fed-income-adj:$/{
 
     fed_inc_adj += parse_number($1);
 }
 
 
 # sum up taxes paid
-/^fed-income-taxes-paid:$/,/^\~fed-income-taxes-paid:$/{
+/^fed-income-taxes-paid:$/,/^~fed-income-taxes-paid:$/{
 
     taxes_paid += parse_number($1);
 }
 
 
 # sum up the deductions
-/^fed-deductions:$/,/^\~fed-deductions:$/{
+/^fed-deductions:$/,/^~fed-deductions:$/{
 
     ded += parse_number($1);
 }
 
 # student loan deductions
-/^fed-student-loan-deductions:$/,/^\~fed-student-loan-deductions:$/ {
+/^fed-student-loan-deductions:$/,/^~fed-student-loan-deductions:$/ {
     student_loan_ded += parse_number($1);
     if (student_loan_ded > 2500) {
         student_loan_ded = 2500
@@ -70,7 +70,7 @@ BEGIN {tax_tbl_size = 0;}
 }
 
 # get exemptions
-/^fed-exemptions:$/,/^\~fed-exemptions:$/{
+/^fed-exemptions:$/,/^~fed-exemptions:$/{
 
     exm += parse_number($1);
 }
@@ -79,17 +79,17 @@ BEGIN {tax_tbl_size = 0;}
 
 
 # sum up the credits
-/^fed-credits:$/,/^\~fed-credits:$/{
+/^fed-credits:$/,/^~fed-credits:$/{
 
     credits += parse_number($1);
 }
 
-/^fed-other-taxes-paid:$/,/^\~fed-other-taxes-paid:$/{
+/^fed-other-taxes-paid:$/,/^~fed-other-taxes-paid:$/{
 
     fed_other_taxes_paid += parse_number($1);
 }
 
-/^fed-child-tax-credit-count:$/,/^\~fed-child-tax-credit-count:$/{
+/^fed-child-tax-credit-count:$/,/^~fed-child-tax-credit-count:$/{
     fed_child_tax_credit_count += $1;
 }
 
