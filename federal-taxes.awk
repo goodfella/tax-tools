@@ -97,6 +97,16 @@ BEGIN {tax_tbl_size = 0;}
 
 /^fed-child-tax-credit-amount:[[:space:]]*[[:digit:]]+/ {fed_child_tax_credit_amount = $2}
 
+/^fed-additional-medicare-threshold:[[:space:]]*[[:digit:]]+/ {fed_additional_medicare_threshold = $2}
+
+/^fed-medicare-wages:$/,/^~fed-medicare-wages:$/{
+    fed_medicare_wages += parse_number($1);
+}
+
+/^fed-other-taxes:$/,/^~fed-other-taxes:$/{
+    fed_other_taxes += parse_number($1);
+}
+
 # print the information and calculate taxes
 END {
 
@@ -114,6 +124,7 @@ END {
     printf("Federal child tax credit amount: %d\n", fed_child_tax_credit_amount);
     printf("Federal child tax credit phase out: %d\n", fed_child_tax_credit_phase_out);
     printf("Federal income taxes paid: $%d\n", taxes_paid);
+    printf("Federal other taxes: $%d\n", fed_other_taxes);
     printf("Federal other taxes paid: $%d\n\n", fed_other_taxes_paid);
 
     # calculate the income tax
@@ -195,14 +206,22 @@ END {
     # round up
     inc_tax += .5;
     total_tax = inc_tax + extra_taxes;
+    total_tax += fed_other_taxes;
 
     child_tax_credit = fed_child_tax_credit_count * fed_child_tax_credit_amount;
-    if (modified_adjusted_gross_income > fed_child_tax_credit_phase_out) {
+    if (modified_adjusted_gross_income > fed_child_tax_credit_phase_out && fed_child_tax_credit_count > 0) {
         child_tax_credit -= ((modified_adjusted_gross_income - fed_child_tax_credit_phase_out) / 1000) * 50
     }
 
     credits += child_tax_credit;
 
+    if (fed_medicare_wages > fed_additional_medicare_threshold)
+    {
+	fed_additional_medicare_taxes = (fed_medicare_wages - fed_additional_medicare_threshold) * .009;
+	total_tax += fed_additional_medicare_taxes;
+    }
+
+    printf("Federal Additional Medicare Taxes: $%d\n", fed_additional_medicare_taxes);
     printf("Income tax: $%d\n", inc_tax);
     printf("Credits: $%d\n", credits);
     printf("Child tax credits: $%d\n", child_tax_credit)
